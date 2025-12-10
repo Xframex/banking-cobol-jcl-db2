@@ -1,0 +1,58 @@
+//DAILY    JOB (ACCT,001),'DAILY PROCESSING CYCLE',
+//         CLASS=A,MSGCLASS=H,TIME=0100,REGION=0M
+//*
+//* Daily processing job orchestration
+//* Runs complete batch cycle: preparation, transaction, reconciliation
+//*
+//PREPARE EXEC PGM=IEFBR14
+//*
+//* Initialize output datasets
+//TRANOUT  DD DSN=USER.TRANOUT,DISP=(MOD,DELETE),
+//         SPACE=(TRK,(100,20),RLSE)
+//ERRLOG   DD DSN=USER.ERRLOG,DISP=(MOD,DELETE),
+//         SPACE=(TRK,(50,10),RLSE)
+//RECONCIL DD DSN=USER.RECONCIL,DISP=(MOD,DELETE),
+//         SPACE=(TRK,(50,10),RLSE)
+//INTRPT   DD DSN=USER.INTRPT,DISP=(MOD,DELETE),
+//         SPACE=(TRK,(50,10),RLSE)
+//
+//MAIN    EXEC PGM=TRANPROC,
+//        PARM='PROD',
+//        COND=(0,NE),
+//        REGION=4096K
+//*
+//* Main transaction processing
+//TRANIN   DD DSN=USER.TRANSACTIONS,DISP=SHR
+//TRANOUT  DD DSN=USER.TRANOUT,DISP=(,KEEP),
+//         SPACE=(TRK,(100,20),RLSE),
+//         UNIT=SYSDA,RECFM=FB,LRECL=150
+//ERRLOG   DD DSN=USER.ERRLOG,DISP=(,KEEP),
+//         SPACE=(TRK,(50,10),RLSE),
+//         UNIT=SYSDA,RECFM=FB,LRECL=200
+//SYSOUT   DD SYSOUT=*
+//STEPLIB  DD DSN=USER.LOADLIB,DISP=SHR
+//         DD DSN=SYS1.DB2.SDSNLOAD,DISP=SHR
+//
+//EODPROC EXEC PGM=RECONCIL,
+//        COND=(0,NE,MAIN),
+//        REGION=4096K
+//*
+//* End-of-day processing
+//TRANIN   DD DSN=USER.TRANOUT,DISP=SHR
+//RECNRPT  DD DSN=USER.RECONCIL,DISP=(,KEEP),
+//         SPACE=(TRK,(50,10),RLSE),
+//         UNIT=SYSDA,RECFM=FB,LRECL=200
+//SYSOUT   DD SYSOUT=*
+//STEPLIB  DD DSN=USER.LOADLIB,DISP=SHR
+//         DD DSN=SYS1.DB2.SDSNLOAD,DISP=SHR
+//
+//REPORT  EXEC PGM=IEBGENER,
+//        COND=(0,NE),
+//        REGION=2048K
+//*
+//* Print transaction results
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD DUMMY
+//SYSUT1   DD DSN=USER.TRANOUT,DISP=SHR
+//SYSUT2   DD SYSOUT=*
+//

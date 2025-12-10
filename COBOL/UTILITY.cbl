@@ -1,0 +1,38 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. UTILITY.
+
+       ENVIRONMENT DIVISION.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+
+       01 WS-PROGRAM-INFO.
+           05 WS-PROGRAM-NAME         PIC X(8) VALUE 'UTILITY'.
+           05 WS-RETURN-CODE          PIC 9(3) VALUE 0.
+
+       LINKAGE SECTION.
+
+       01 LS-INPUT-VALUE              PIC X(20).
+       01 LS-OUTPUT-VALUE             PIC 9(15)V99 COMP-3.
+       01 LS-RETURN-CODE              PIC 9(3).
+
+       PROCEDURE DIVISION USING LS-INPUT-VALUE LS-OUTPUT-VALUE
+                                LS-RETURN-CODE.
+
+       000-MAIN-PROCEDURE.
+           PERFORM 100-CONVERT-VALUE.
+           PERFORM 200-RETURN-RESULT.
+           GOBACK.
+
+       100-CONVERT-VALUE.
+           IF LS-INPUT-VALUE NUMERIC
+               MOVE FUNCTION NUMVAL(LS-INPUT-VALUE)
+                   TO LS-OUTPUT-VALUE
+               MOVE 0 TO LS-RETURN-CODE
+           ELSE
+               MOVE 0 TO LS-OUTPUT-VALUE
+               MOVE 1 TO LS-RETURN-CODE
+           END-IF.
+
+       200-RETURN-RESULT.
+           CONTINUE.
